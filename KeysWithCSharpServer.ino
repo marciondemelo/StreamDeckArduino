@@ -3,8 +3,8 @@
 #include "ButtonControl.h"
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
-
-static char Page = 1;
+extern unsigned char pagName;
+static char Page = 2;
 
 static String Page01Linha01 = "", Page01Linha02 = "", Page02Linha01 = "", Page02Linha02 = "";
 
@@ -22,7 +22,7 @@ static unsigned long tempoPag;
 static bool pag1 = false;
 bool alternaEntrePaginasLcd() {
   if (tempoPag < millis()) {
-    tempoPag = millis() + 5000;
+    tempoPag = millis() + 2000;
     pag1 = !pag1;
   }
   return pag1;
@@ -38,11 +38,11 @@ void setup() {
   lcd.backlight();
   lcd.clear();
 
-  Page01Linha01 = "PAG-A  1-Vol+";
-  Page01Linha02 = "2-Vol- 3-Mute";
+  // Page01Linha01 = "PAG-A  1-Vol+";
+  // Page01Linha02 = "2-Vol- 3-Mute";
 
-  Page02Linha01 = "PAG-A  4-Home";
-  Page02Linha02 = "5-End  6-Prin";
+  // Page02Linha01 = "PAG-A  4-Home";
+  // Page02Linha02 = "5-End  6-Prin";
   volumeAnterior = retornaVolume0a100();
 }
 
@@ -56,16 +56,25 @@ void loop() {
     SerialToLcd();
   }
 
-  lcd.clear();
-  lcd.setCursor(0, 0);
+
   if (alternaEntrePaginasLcd()) {
-    lcd.print(Page01Linha01);
-    lcd.setCursor(0, 1);
-    lcd.print(Page01Linha02);
+    if (Page == 2) {
+      Page = 1;
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print(Page01Linha01);
+      lcd.setCursor(0, 1);
+      lcd.print(Page01Linha02);
+    }
   } else {
-    lcd.print(Page02Linha01);
-    lcd.setCursor(0, 1);
-    lcd.print(Page02Linha02);
+    if (Page == 1) {
+      Page = 2;
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print(Page02Linha01);
+      lcd.setCursor(0, 1);
+      lcd.print(Page02Linha02);
+    }
   }
 }
 
