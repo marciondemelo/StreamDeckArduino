@@ -12,11 +12,10 @@ unsigned char statusBtn04 = '0';
 unsigned char statusBtn03 = '0';
 unsigned char statusBtn02 = '0';
 unsigned char statusBtn01 = '0';
-// unsigned char statusEncodeButton = '0';
+unsigned char statusEncodeButton = '0';
 
 void checkButton();
 void pressButton();
-unsigned char retornaVolume0a100();
 
 void funcButton(unsigned char numButton) {
   if (numButton == '1') {
@@ -41,59 +40,54 @@ void funcButton(unsigned char numButton) {
   Serial.println(char(numButton));
 }
 
-static unsigned char volumeAnterior;
+int encoderValue = 10;                // Valor atual do encoder
+unsigned char encoderPinALast = LOW;  // Estado anterior do sinal A
+unsigned char encoderPinBLast = LOW;  // Estado anterior do sinal B
+static unsigned long timeRotaryEncoder;
+
 void EncoderConfig() {
-  // Lê o estado atual dos pinos do encoder
-  unsigned char volumeAtual = retornaVolume0a100();
-  // Serial.print(volumeAnterior);
-  // Serial.print("--");
-  // Serial.println(volumeAtual);
-  if (volumeAnterior != volumeAtual && (volumeAnterior+1) != volumeAtual && (volumeAnterior-1) != volumeAtual) {
-    Serial.print("vol");
-    Serial.print('@');
-    Serial.println(volumeAtual);
-    delay(500);
-    volumeAnterior = volumeAtual;
-    
+  unsigned char encoderPinAState = digitalRead(EncodeSinal01);
+  unsigned char encoderPinBState = digitalRead(EncodeSinal02);
+
+  if (encoderPinAState != encoderPinALast) {
+
+    if (timeRotaryEncoder < millis()) {
+      timeRotaryEncoder = millis() + 70;
+
+      if (encoderPinBState != encoderPinAState) {
+        encoderValue++;
+        if (encoderValue > 100) {
+          encoderValue = 100;
+        }
+      } else {
+        encoderValue--;
+        if (encoderValue < 0) {
+          encoderValue = 0;
+        }
+      }
+
+      Serial.print("vol@");
+      Serial.println(encoderValue);  // Mostra o valor binário do encoder no monitor serial
+    }
   }
 
-
-  // byte AtualEncode01 = read_bit(PINC, EncodeSinal01);
-  // if (AnteriorEncode01 != AtualEncode01) {
-  //   delay(100);
-  //   AnteriorEncode01 = AtualEncode01;
-  //   if (read_bit(PINC, EncodeSinal02) != AtualEncode01) {
-  //     Serial.println("volU");
-  //   } else {
-  //     Serial.println("volD");
-  //   }
-  // }
-}
-
-unsigned char retornaVolume0a100() {
-  return analogRead(A1) / (1023 / 100);
+  encoderPinALast = encoderPinAState;
+  encoderPinBLast = encoderPinBState;
 }
 
 void pressButton() {
   checkButton();
   EncoderConfig();
 
-  if (read_bit(PIND, BtnDBack) > 0 && statusBtnDBack == '1') {
-    if (valor == 3) {
-      valor = 0;
-    } else {
-      valor++;
-    }
-    statusBtnDBack = '0';
+  if (read_bit(PIND, BtnDBack) && statusBtnDBack) {
+    valor = (valor == 3) ? 0 : valor + 1;
+    statusBtnDBack = 0;
   }
-  if (read_bit(PIND, BtnDNext) > 0 && statusBtnDNext == '1') {
-    if (valor == 0) {
-      valor = 3;
-    } else {
-      valor--;
-    }
-    statusBtnDNext = '0';
+  if (read_bit(PIND, BtnDNext) && statusBtnDNext) {
+    valor = (valor == 0) ? 3 : valor - 1;
+    statusBtnDNext = 0;
   }
+
 
   if (read_bit(PINB, BtnB01) > 0 && statusBtn01 == '1') {
     funcButton('1');
@@ -116,15 +110,13 @@ void pressButton() {
     funcButton('6');
   }
 
-  // if (read_bit(PINC, EncodeButton) > 0 && statusEncodeButton == '1') {
-  //   statusEncodeButton = '0';
-  //   Serial.println("volmute");
-  // }
+  if (read_bit(PINC, EncodeButton) > 0 && statusEncodeButton == '1') {
+    statusEncodeButton = '0';
+    Serial.println("volmute");
+  }
 }
 
 void checkButton() {
-  //verifica se o pino D7 é 1(HIGH) e nega. Entra se o Pino D7 for false (LOW)
-
   if ((read_bit(PIND, BtnDBack)) == 0) {
     statusBtnDBack = '1';
   }
@@ -149,8 +141,7 @@ void checkButton() {
   if ((read_bit(PIND, BtnD06)) == 0) {
     statusBtn06 = '1';
   }
-  // if (read_bit(PINC, EncodeButton) == 0) {
-  //   statusEncodeButton = '1';
-  // }
-  delay(10);
+  if (read_bit(PINC, EncodeButton) == 0) {
+    statusEncodeButton = '1';
+  }
 }

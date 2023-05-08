@@ -12,11 +12,9 @@ void Inicializer_DigitalPins(void);
 #define BtnD04 5
 #define BtnD05 6
 #define BtnD06 7
-#define EncodeSinal01 2
-#define EncodeSinal02 3
-#define EncodeButton 1
-
-unsigned char startCount_m;
+#define EncodeSinal01 A1
+#define EncodeSinal02 A2
+#define EncodeButton 3
 
 void Inicializer_DigitalPins(void){
 
@@ -28,10 +26,9 @@ void Inicializer_DigitalPins(void){
 	clr_bit(DDRD, BtnDNext); //define como input (invert de 1 para 0)
 	clr_bit(DDRD, BtnD05); //define como input (invert de 1 para 0)
 	clr_bit(DDRD, BtnD06); //define como input (invert de 1 para 0)
-  clr_bit(DDRC, EncodeSinal01); //define como input (invert de 1 para 0)
-  clr_bit(DDRC, EncodeSinal02); //define como input (invert de 1 para 0)
-  // clr_bit(DDRC, EncodeButton); //define como input (invert de 1 para 0)
-
+  // clr_bit(DDRC, EncodeSinal01); //define como input (invert de 1 para 0)
+  // clr_bit(DDRC, EncodeSinal02); //define como input (invert de 1 para 0)
+  clr_bit(DDRC, EncodeButton); //define como input (invert de 1 para 0)
 
 	set_bit(PORTB, BtnB01); //define como pullup
 	set_bit(PORTB, BtnB02); //define como pullup
@@ -41,10 +38,12 @@ void Inicializer_DigitalPins(void){
 	set_bit(PORTD, BtnD04); //define como pullup
 	set_bit(PORTD, BtnD05); //define como pullup
 	set_bit(PORTD, BtnD06); //define como pullup
-  set_bit(PORTC, EncodeSinal01); //define como pullup
-  set_bit(PORTC, EncodeSinal02); //define como pullup
-  // set_bit(PORTC, EncodeButton); //define como pullup
+  // set_bit(PORTC, EncodeSinal01); //define como pullup
+  // set_bit(PORTC, EncodeSinal02); //define como pullup
+  set_bit(PORTC, EncodeButton); //define como pullup
   
+  pinMode(EncodeSinal01, INPUT_PULLUP);
+  pinMode(EncodeSinal02, INPUT_PULLUP);
 }
 
 

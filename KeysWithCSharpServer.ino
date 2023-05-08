@@ -43,7 +43,6 @@ void setup() {
 
   // Page02Linha01 = "PAG-A  4-Home";
   // Page02Linha02 = "5-End  6-Prin";
-  volumeAnterior = retornaVolume0a100();
 }
 
 String inputString = "";
