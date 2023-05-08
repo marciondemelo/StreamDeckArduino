@@ -37,7 +37,7 @@ void setup() {
   lcd.init();
   lcd.backlight();
   lcd.clear();
-
+  encoder.setPosition(10); // start with the value of 10.
   // Page01Linha01 = "PAG-A  1-Vol+";
   // Page01Linha02 = "2-Vol- 3-Mute";
 

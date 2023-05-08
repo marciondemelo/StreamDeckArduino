@@ -1,4 +1,12 @@
+#include <RotaryEncoder.h>
 #include "Pagination.h"
+
+#define ROTARYSTEPS 1
+#define ROTARYMIN 0
+#define ROTARYMAX 100
+
+// Setup a RotaryEncoder with 4 steps per latch for the 2 signal input pins:
+RotaryEncoder encoder(EncodeSinal01, EncodeSinal02, RotaryEncoder::LatchMode::FOUR3);
 
 extern unsigned char pagName;
 extern uint8_t valor;
@@ -40,39 +48,29 @@ void funcButton(unsigned char numButton) {
   Serial.println(char(numButton));
 }
 
-int encoderValue = 10;                // Valor atual do encoder
-unsigned char encoderPinALast = LOW;  // Estado anterior do sinal A
-unsigned char encoderPinBLast = LOW;  // Estado anterior do sinal B
-static unsigned long timeRotaryEncoder;
+// Last known rotary position.
+int lastPos = -1;
 
 void EncoderConfig() {
-  unsigned char encoderPinAState = digitalRead(EncodeSinal01);
-  unsigned char encoderPinBState = digitalRead(EncodeSinal02);
+  encoder.tick();
 
-  if (encoderPinAState != encoderPinALast) {
+  // get the current physical position and calc the logical position
+  int newPos = encoder.getPosition() * ROTARYSTEPS;
 
-    if (timeRotaryEncoder < millis()) {
-      timeRotaryEncoder = millis() + 70;
+  if (newPos < ROTARYMIN) {
+    encoder.setPosition(ROTARYMIN / ROTARYSTEPS);
+    newPos = ROTARYMIN;
 
-      if (encoderPinBState != encoderPinAState) {
-        encoderValue++;
-        if (encoderValue > 100) {
-          encoderValue = 100;
-        }
-      } else {
-        encoderValue--;
-        if (encoderValue < 0) {
-          encoderValue = 0;
-        }
-      }
+  } else if (newPos > ROTARYMAX) {
+    encoder.setPosition(ROTARYMAX / ROTARYSTEPS);
+    newPos = ROTARYMAX;
+  } // if
 
-      Serial.print("vol@");
-      Serial.println(encoderValue);  // Mostra o valor binário do encoder no monitor serial
-    }
-  }
-
-  encoderPinALast = encoderPinAState;
-  encoderPinBLast = encoderPinBState;
+  if (lastPos != newPos) {
+    Serial.print("vol@");
+    Serial.println(newPos);
+    lastPos = newPos;
+  } // if
 }
 
 void pressButton() {
