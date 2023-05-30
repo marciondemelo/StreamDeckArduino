@@ -28,6 +28,27 @@ bool alternaEntrePaginasLcd() {
   return pag1;
 }
 
+extern int lastPos;
+extern bool showVol;
+static unsigned long tempoVol;
+bool updateVoul = false;
+bool volumeNoLcd() {
+  if (tempoVol < millis() && showVol) {
+    tempoVol = millis() + 2000;
+    updateVoul = !updateVoul;
+  } else if (!showVol) {
+    if (tempoVol > millis()) {
+      updateVoul = true;
+    } else {
+      updateVoul = false;
+    }
+  } else {
+    tempoVol = millis() + 2000;
+  }
+
+  return updateVoul;
+}
+
 void setup() {
   Serial.begin(9600);
   // put your setup code here, to run once:
@@ -37,20 +58,31 @@ void setup() {
   lcd.init();
   lcd.backlight();
   lcd.clear();
-  encoder.setPosition(10); // start with the value of 10.
-  // Page01Linha01 = "PAG-A  1-Vol+";
-  // Page01Linha02 = "2-Vol- 3-Mute";
-
-  // Page02Linha01 = "PAG-A  4-Home";
-  // Page02Linha02 = "5-End  6-Prin";
+  encoder.setPosition(10);  // start with the value of 10.
+  Serial.println("pageA");
 }
 
+
 String inputString = "";
+String vol;
 void loop() {
   // put your main code here, to run repeatedly:
   pressButton();
   setPage();
 
+  if (volumeNoLcd()) {
+    if (vol != "VOLUME") {
+      vol = "VOLUME";
+      lcd.clear();
+    }
+    lcd.setCursor(0, 0);
+    lcd.print(vol);
+    lcd.setCursor(14, 0);
+    lcd.print(lastPos);
+    showVol = false;
+    return;
+  }
+  vol = "";
   if (TimeAtualizaLcd()) {
     SerialToLcd();
   }

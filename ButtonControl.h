@@ -50,7 +50,7 @@ void funcButton(unsigned char numButton) {
 
 // Last known rotary position.
 int lastPos = -1;
-
+bool showVol = false;
 void EncoderConfig() {
   encoder.tick();
 
@@ -70,6 +70,7 @@ void EncoderConfig() {
     Serial.print("vol@");
     Serial.println(newPos);
     lastPos = newPos;
+    showVol = true;
   } // if
 }
 
